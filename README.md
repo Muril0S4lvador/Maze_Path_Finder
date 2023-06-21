@@ -1,1 +1,1 @@
-# Maze_Path_Finder
+# Maze Path Finder
