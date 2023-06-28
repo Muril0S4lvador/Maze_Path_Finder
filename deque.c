@@ -1,9 +1,8 @@
 #include <stdlib.h>
 #include "deque.h"
-#include "vector.h"
 
 struct Deque{
-    data_type **data;
+    void ***data;
     int first_block;
     int last_block;
     int allocated_block;
