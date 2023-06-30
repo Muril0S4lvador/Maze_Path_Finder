@@ -1,47 +1,74 @@
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-
 #include "deque.h"
 
-int main(){
+typedef struct
+{
+    int x, y;
+} Celula;
+
+Celula *celula_create(int x, int y)
+{
+    Celula *c = malloc(sizeof(Celula));
+    c->x = x;
+    c->y = y;
+    return c;
+}
+
+void celula_free(Celula *c)
+{
+    free(c);
+}
+
+int main()
+{
+    int i, n, x, y;
+    char cmd[10];
     Deque *d = deque_construct();
-    Cel *c;
 
-    int qtd, x, y;
-    char oq[20];
-    qtd = 2;
-    scanf("%d", &qtd);
+    scanf("%d", &n);
 
-    for(int i = 0; i < qtd; i++){
-        scanf("%s", &oq);
+    for (i = 0; i < n; i++)
+    {
+        scanf("\n%s", cmd);
 
-        if(!strcmp(oq, "POP_FRONT")){
-            c = (Cel*) deque_pop_front(d);
-            cel_print(c);
-            // cel_destroy(c);
-
-        } else if(!strcmp(oq, "POP_BACK")){
-            c = (Cel*) deque_pop_back(d);
-            cel_print(c);
-            // cel_destroy(c);
-
-        } else{
-
+        if (!strcmp(cmd, "PUSH_BACK"))
+        {
             scanf("%d %d", &x, &y);
-            c = cel_construct(x, y);
-
-            if(!strcmp(oq, "PUSH_FRONT")){
-                deque_push_front(d, c);
-
-            } else{
-                deque_push_back(d, c);
+            deque_push_back(d, celula_create(x, y));
+        }
+        else if (!strcmp(cmd, "PUSH_FRONT"))
+        {
+            scanf("%d %d", &x, &y);
+            deque_push_front(d, celula_create(x, y));
+        }
+        else if (!strcmp(cmd, "POP_BACK"))
+        {
+            Celula *c = deque_pop_back(d);
+            
+            if(c->x == 40 && c->y == 84){
+                int x = 19;
 
             }
+                
+            printf("%d %d\n", c->x, c->y);
+            celula_free(c);
+        }
+        else if (!strcmp(cmd, "POP_FRONT"))
+        {
+            Celula *c = deque_pop_front(d);
+                        
+            if(c->x == 40 && c->y == 84){
+                int x = 19;
+
+            }
+                
+            printf("%d %d\n", c->x, c->y);
+            celula_free(c);
         }
     }
 
-    // deque_destroy(d);
-
+    deque_destroy(d);
     return 0;
 }

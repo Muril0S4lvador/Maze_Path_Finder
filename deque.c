@@ -162,7 +162,6 @@ void *deque_pop_back(Deque *d){
 
     if(d->last_array < 0){
         d->last_array = ARRAY_SIZE - 1;
-        // free(d->data[d->last_block]);
         d->last_block--;
     }
 
@@ -175,6 +174,9 @@ void *deque_pop_back(Deque *d){
 
     void *v = d->data[d->last_block][d->last_array];
 
+    if(d->last_array == 0)
+        free(d->data[d->last_block]);
+
     return v;
 }
 
@@ -185,7 +187,7 @@ void *deque_pop_front(Deque *d){
 
     if(d->first_array >= ARRAY_SIZE){
         d->first_array = 0;
-        // free(d->data[d->first_block]);
+        free(d->data[d->first_block]);
         d->first_block++;
     }
 
@@ -214,11 +216,18 @@ void *deque_get(Deque *d, int idx){
 
 void deque_destroy(Deque *d){
     void *v;
-    while((d->first_block != d->last_block) && (d->first_array != d->last_array)){
+
+    while(1){
+        if(d->first_block == d->last_block)
+            if(d->first_array == d->last_array)
+                break;
+
         v = deque_pop_front(d);
         free(v);
     }
-    free(d->data[d->first_block]);
+
+    if(d->last_array)
+        free(d->data[d->first_block]);
     free(d->data);
     free(d);
 }
