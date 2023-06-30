@@ -26,6 +26,9 @@ void cel_print(void *v){
     Cel *c = (Cel*) v;
     printf("%d %d\n", c->x, c->y);
 }
+void cel_destroy(Cel *c){
+    free(c);
+}
 
 Deque *deque_construct(){
     Deque *d = calloc(1, sizeof(Deque));
@@ -159,7 +162,7 @@ void *deque_pop_back(Deque *d){
 
     if(d->last_array < 0){
         d->last_array = ARRAY_SIZE - 1;
-        free(d->data[d->last_block]);
+        // free(d->data[d->last_block]);
         d->last_block--;
     }
 
@@ -170,21 +173,19 @@ void *deque_pop_back(Deque *d){
         return NULL;
     }
 
-    void* v = d->data[d->last_block][d->last_array];
-    free(d->data[d->last_block][d->last_array]);
+    void *v = d->data[d->last_block][d->last_array];
 
     return v;
 }
 
 void *deque_pop_front(Deque *d){
     void* v = d->data[d->first_block][d->first_array];
-    free(d->data[d->first_block][d->first_array]);
 
     d->first_array++;
 
     if(d->first_array >= ARRAY_SIZE){
         d->first_array = 0;
-        free(d->data[d->first_block]);
+        // free(d->data[d->first_block]);
         d->first_block++;
     }
 
@@ -209,6 +210,17 @@ void *deque_get(Deque *d, int idx){
     int pos = d->first_array + idx;
     int bloco_idx = pos / ARRAY_SIZE;
     int item_idx = pos % ARRAY_SIZE;
+}
+
+void deque_destroy(Deque *d){
+    void *v;
+    while((d->first_block != d->last_block) && (d->first_array != d->last_array)){
+        v = deque_pop_front(d);
+        free(v);
+    }
+    free(d->data[d->first_block]);
+    free(d->data);
+    free(d);
 }
 
 

@@ -35,5 +35,6 @@ void printa_Coords(Deque *d);
 
 Cel *cel_construct(int x, int y);
 void cel_print(void *v);
+void cel_destroy(Cel *c);
 
 #endif
