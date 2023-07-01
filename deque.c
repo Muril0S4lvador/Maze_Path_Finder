@@ -192,8 +192,7 @@ void *deque_pop_front(Deque *d){
     }
 
     if(d->first_block >= d->allocated_block){
-        d->first_block = d->allocated_block - 1;
-        return NULL;
+        d->first_block = d->last_block = d->allocated_block / 2;
     }
     
     return v;

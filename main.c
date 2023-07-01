@@ -36,6 +36,12 @@ int main()
         if (!strcmp(cmd, "PUSH_BACK"))
         {
             scanf("%d %d", &x, &y);
+
+            if(x == 0)
+                if(y == 0){
+                    int x = 90;
+                    x++;
+                }
             deque_push_back(d, celula_create(x, y));
         }
         else if (!strcmp(cmd, "PUSH_FRONT"))
@@ -46,24 +52,12 @@ int main()
         else if (!strcmp(cmd, "POP_BACK"))
         {
             Celula *c = deque_pop_back(d);
-            
-            if(c->x == 40 && c->y == 84){
-                int x = 19;
-
-            }
-                
             printf("%d %d\n", c->x, c->y);
             celula_free(c);
         }
         else if (!strcmp(cmd, "POP_FRONT"))
         {
             Celula *c = deque_pop_front(d);
-                        
-            if(c->x == 40 && c->y == 84){
-                int x = 19;
-
-            }
-                
             printf("%d %d\n", c->x, c->y);
             celula_free(c);
         }
