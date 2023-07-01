@@ -3,6 +3,7 @@
 #define _DEQUE_H_
 
 typedef struct Deque Deque;
+typedef struct Cel Cel;
 typedef void* data_type;
 
 #define BLOCKS_INITIAL_SIZE 5
@@ -14,6 +15,8 @@ Deque *deque_construct(void);
 // funcoes para insercao na direita e esquerda (devem ser feitas em O(1), com eventual realloc)
 void deque_push_back(Deque *d, void *val);
 void deque_push_front(Deque *d, void *val);
+
+void deque_data_realloc(Deque *d);
 
 // funcoes para remocao na direita e esquerda (devem ser feitas em O(1))
 void *deque_pop_back(Deque *d);
@@ -27,5 +30,11 @@ void *deque_get(Deque *d, int idx);
 
 // libera o espaco alocado para o deque
 void deque_destroy(Deque *d);
+
+void printa_Coords(Deque *d);
+
+Cel *cel_construct(int x, int y);
+void cel_print(void *v);
+void cel_destroy(Cel *c);
 
 #endif
