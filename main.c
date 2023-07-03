@@ -1,7 +1,8 @@
-#include <string.h>
+
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
-#include "deque.h"
+#include "hash.h"
 
 typedef struct
 {
@@ -16,16 +17,35 @@ Celula *celula_create(int x, int y)
     return c;
 }
 
-void celula_free(Celula *c)
+void celula_destroy(Celula *c)
 {
     free(c);
+}
+
+int celula_hash(HashTable *h, void *key)
+{
+    Celula *c = (Celula *)key;
+    // 83 e 97 sao primos e o operador "^" é o XOR bit a bit
+    return ((c->x * 83) ^ (c->y * 97)) % hash_table_size(h);
+}
+
+int celula_cmp(void *c1, void *c2)
+{
+    Celula *a = (Celula *)c1;
+    Celula *b = (Celula *)c2;
+
+    if (a->x == b->x && a->y == b->y)
+        return 0;
+    else
+        return 1;
 }
 
 int main()
 {
     int i, n, x, y;
     char cmd[10];
-    Deque *d = deque_construct();
+
+    HashTable *h = hash_table_construct(19, celula_hash, celula_cmp);
 
     scanf("%d", &n);
 
@@ -33,36 +53,45 @@ int main()
     {
         scanf("\n%s", cmd);
 
-        if (!strcmp(cmd, "PUSH_BACK"))
+        if (!strcmp(cmd, "SET"))
         {
-            scanf("%d %d", &x, &y);
+            int *pos = malloc(sizeof(int));
+            scanf("%d %d %d", &x, &y, pos);
+            Celula *cel = celula_create(x, y);
+            void *prev = hash_table_set(h, cel, pos);
 
-            if(x == 0)
-                if(y == 0){
-                    int x = 90;
-                    x++;
-                }
-            deque_push_back(d, celula_create(x, y));
+            // se o par ja existia, podemos liberar a celula e a posicao antiga
+            if (prev)
+            {
+                free(prev);
+                celula_destroy(cel);
+            }
         }
-        else if (!strcmp(cmd, "PUSH_FRONT"))
+        else if (!strcmp(cmd, "GET"))
         {
             scanf("%d %d", &x, &y);
-            deque_push_front(d, celula_create(x, y));
-        }
-        else if (!strcmp(cmd, "POP_BACK"))
-        {
-            Celula *c = deque_pop_back(d);
-            printf("%d %d\n", c->x, c->y);
-            celula_free(c);
-        }
-        else if (!strcmp(cmd, "POP_FRONT"))
-        {
-            Celula *c = deque_pop_front(d);
-            printf("%d %d\n", c->x, c->y);
-            celula_free(c);
+            Celula *cel = celula_create(x, y);
+            int *pos = hash_table_get(h, cel);
+            printf("%d\n", *pos);
+            celula_destroy(cel);
         }
     }
 
-    deque_destroy(d);
+    /*
+    HashTableIterator *it = hash_table_iterator(h);
+
+    while (!hash_table_iterator_is_over(it))
+    {
+        HashTableItem *item = hash_table_iterator_next(it);
+        Celula *cel = (Celula *)item->key;
+        int *pos = (int *)item->val;
+        celula_destroy(cel);
+        free(pos);
+    }
+
+    hash_table_iterator_destroy(it);
+    */
+    hash_table_destroy(h);
+
     return 0;
 }
