@@ -4,8 +4,17 @@
 
 typedef struct HashTable HashTable;
 
+typedef int (*HashFunction)(HashTable *, void *);
+typedef int (*CmpFunction)(void *v1, void *v2);
+
+typedef struct
+{
+    void *key;
+    void *val;
+} HashTableItem;
+
 // criacao da tabela hash
-HashTable *hash_table_construct();
+HashTable *hash_table_construct(int size, HashFunction hash_fn, CmpFunction cmp_fn);
 
 // funcao para insercao/atualizacao de pares chave-valor em O(1).
 // Eh responsabilidade do usuario gerar a chave como um inteiro.
