@@ -12,7 +12,8 @@ struct HashTable
     int n_elements;
 };
 
-HashTableItem *_hash_pair_construct(int key, void *val)
+
+HashTableItem *_hash_pair_construct(void *key, void *val)
 {
     HashTableItem *p = calloc(1, sizeof(HashTableItem));
     p->key = key;
@@ -38,48 +39,91 @@ HashTable *hash_table_construct(int table_size, HashFunction hash_fn, CmpFunctio
     return hash_tbl;
 }
 
-void hash_table_set(HashTable *h, int key, void *val)
+void *hash_table_set(HashTable *h, void *key, void *val)
 {
     int idx = h->hash_fn(h, key);
-    HashTableItem *item = _hash_pair_construct(key, val);
+    HashTableItem *item;
 
     if(h->buckets[idx]){
-        HashTableItem *n = (HashTableItem*) forward_list_find(h->buckets[idx], key, h->cmp_fn);
+        Node *n = h->buckets[idx]->head;
 
-        if(n){
-            n->val = val;
+        while(n){
+            HashTableItem *hti = (HashTableItem *) n->value;
 
-        } else {
-            forward_list_push_back(h->buckets[idx], (data_type*) item);
+            if(!h->cmp_fn(hti->key, key)){
+                void *v = hti->val;
+                hti->val = val;
+                
+                return v;
+            }
+            n = n->next;
         }
+        
+        item = _hash_pair_construct(key, val);
+        forward_list_push_back(h->buckets[idx], item);
 
     } else{
         h->buckets[idx] = forward_list_construct();
-        forward_list_push_back(h->buckets[idx], (data_type*) item);
+        item = _hash_pair_construct(key, val);
+        forward_list_push_back(h->buckets[idx], item);
 
     }
+    h->n_elements++;
+
+    return NULL;
 }
 
-void *hash_table_get(HashTable *h, int key)
+void *hash_table_get(HashTable *h, void *key)
 {
     int idx = h->hash_fn(h, key);
 
     if(h->buckets[idx]){
-        HashTableItem *item = (HashTableItem*) forward_list_find(h->buckets[idx], key, h->cmp_fn);
+        Node *n = h->buckets[idx]->head;
 
-        if(item) return item;
-
+        while(n){
+            HashTableItem *item = (HashTableItem *) n->value;
+            
+            if(!h->cmp_fn(item->key, key))
+                return item->val;
+            
+            n = n->next;
+        }
     }
 
     return NULL;
 }
 
-void *hash_table_pop(HashTable *h, int key)
+void *hash_table_pop(HashTable *h, void *key)
 {
-    // ************************************
-    // TODO!!
-    // ************************************
+    int idx = h->hash_fn(h, key);
+    Node *prev = NULL, *next;
 
+    if(h->buckets[idx]){
+        Node *n = h->buckets[idx]->head;
+
+        while(n){
+            next = n->next;
+            HashTableItem *item = n->value;
+
+            if(!h->cmp_fn(key, item->key)){
+                
+                if(prev)
+                    prev->next = next;
+                else
+                    h->buckets[idx]->head = next;
+                
+                n->next = NULL;
+
+                if(!h->buckets[idx]->head)
+                    free(h->buckets[idx]);
+                    
+                return n;
+            }            
+
+            prev = n;
+            n = next;
+        }
+    }
     return NULL;
 }
 
@@ -104,6 +148,9 @@ void hash_table_destroy(HashTable *h)
             while (n != NULL)
             {
                 HashTableItem *pair = n->value;
+                free(pair->key);
+                free(pair->val);
+
                 _hash_pair_destroy(pair);
                 n = n->next;
             }
