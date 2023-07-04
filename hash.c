@@ -41,24 +41,30 @@ HashTable *hash_table_construct(int table_size, HashFunction hash_fn, CmpFunctio
 void *hash_table_set(HashTable *h, void *key, void *val)
 {
     int idx = h->hash_fn(h, key);
-    HashTableItem *item = _hash_pair_construct(key, val);
+    HashTableItem *item;
 
     if(h->buckets[idx]){
         Node *n = h->buckets[idx]->head;
 
         while(n){
-            HashTableItem *prev = (HashTableItem*) n->value;
-            if(!h->cmp_fn(prev->key, key)){
-                void *v = n->value;
-                n->value = item;
+            HashTableItem *hti = (HashTableItem *) n->value;
+
+            if(!h->cmp_fn(hti->key, key)){
+                void *v = hti->val;
+                hti->val = val;
+                
                 return v;
             }
             n = n->next;
         }
+        
+        item = _hash_pair_construct(key, val);
+        forward_list_push_back(h->buckets[idx], item);
 
     } else{
         h->buckets[idx] = forward_list_construct();
-        forward_list_push_back(h->buckets[idx], (data_type*) item);
+        item = _hash_pair_construct(key, val);
+        forward_list_push_back(h->buckets[idx], item);
 
     }
     h->n_elements++;
@@ -73,9 +79,13 @@ void *hash_table_get(HashTable *h, void *key)
     if(h->buckets[idx]){
         Node *n = h->buckets[idx]->head;
 
-        if(n){
+        while(n){
             HashTableItem *item = (HashTableItem *) n->value;
-            return item->val;
+            
+            if(!h->cmp_fn(item->key, key))
+                return item->val;
+            
+            n = n->next;
         }
     }
 
@@ -92,11 +102,20 @@ void *hash_table_pop(HashTable *h, void *key)
 
         while(n){
             next = n->next;
+            HashTableItem *item = n->value;
 
-            if(!h->cmp_fn(key, n)){
+            if(!h->cmp_fn(key, item->key)){
                 
-                prev->next = next;
+                if(prev)
+                    prev->next = next;
+                else
+                    h->buckets[idx]->head = next;
+                
                 n->next = NULL;
+
+                if(!h->buckets[idx]->head)
+                    free(h->buckets[idx]);
+                    
                 return n;
             }            
 
@@ -129,6 +148,8 @@ void hash_table_destroy(HashTable *h)
             while (n != NULL)
             {
                 HashTableItem *pair = n->value;
+                free(pair->key);
+                free(pair->val);
                 _hash_pair_destroy(pair);
                 n = n->next;
             }
