@@ -12,6 +12,7 @@ struct HashTable
     int n_elements;
 };
 
+
 HashTableItem *_hash_pair_construct(void *key, void *val)
 {
     HashTableItem *p = calloc(1, sizeof(HashTableItem));
@@ -123,7 +124,6 @@ void *hash_table_pop(HashTable *h, void *key)
             n = next;
         }
     }
-
     return NULL;
 }
 
@@ -150,6 +150,7 @@ void hash_table_destroy(HashTable *h)
                 HashTableItem *pair = n->value;
                 free(pair->key);
                 free(pair->val);
+
                 _hash_pair_destroy(pair);
                 n = n->next;
             }

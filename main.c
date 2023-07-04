@@ -91,6 +91,7 @@ int main()
 
     hash_table_iterator_destroy(it);
     */
+
     hash_table_destroy(h);
 
     return 0;

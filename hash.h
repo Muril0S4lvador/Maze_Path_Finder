@@ -32,6 +32,7 @@ void *hash_table_pop(HashTable *h, void* key);
 int hash_table_num_elems(HashTable *h);
 
 // tamanho da tabela
+
 int hash_table_size(HashTable *h);
 
 // libera o espaco alocado para a tabela hash
