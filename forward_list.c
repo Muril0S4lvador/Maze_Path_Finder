@@ -155,9 +155,14 @@ void forward_list_remove(ForwardList *l, data_type val)
             else
                 prev->next = new_n = n->next;
 
+            if(l->last == n){
+                l->last = prev;
+            }
+
             node_destroy(n);
             n = new_n;
             l->size--;
+            return;
         }
         else
         {

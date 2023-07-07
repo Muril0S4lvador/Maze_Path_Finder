@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "heap.h"
+#include "hash.h"
 
 typedef struct
 {
@@ -70,22 +71,11 @@ int main()
             int priority = heap_min_priority(heap);
             Celula *cel = heap_pop(heap);
             printf("%d %d %d\n", cel->x, cel->y, priority);
+
             celula_destroy(cel);
         }
     }
 
-    HashTableIterator *it = hash_table_iterator(h);
-
-    while (!hash_table_iterator_is_over(it))
-    {
-        HashTableItem *item = hash_table_iterator_next(it);
-        Celula *cel = (Celula *)item->key;
-        int *pos = (int *)item->val;
-        celula_destroy(cel);
-        free(pos);
-    }
-
-    hash_table_iterator_destroy(it);
     hash_table_destroy(h);
     heap_destroy(heap);
 

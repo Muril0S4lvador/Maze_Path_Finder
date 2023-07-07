@@ -44,6 +44,10 @@ void *hash_table_set(HashTable *h, void *key, void *val)
     int idx = h->hash_fn(h, key);
     HashTableItem *item;
 
+    if(idx == 8)
+        idx = 9 - 1;
+    
+
     if(h->buckets[idx]){
         Node *n = h->buckets[idx]->head;
 
@@ -74,7 +78,7 @@ void *hash_table_set(HashTable *h, void *key, void *val)
 }
 
 void *hash_table_get(HashTable *h, void *key)
-{
+{   
     int idx = h->hash_fn(h, key);
 
     if(h->buckets[idx]){
@@ -93,10 +97,12 @@ void *hash_table_get(HashTable *h, void *key)
     return NULL;
 }
 
-void *hash_table_pop(HashTable *h, void *key)
-{
+void *hash_table_pop(HashTable *h, void *key){
     int idx = h->hash_fn(h, key);
     Node *prev = NULL, *next;
+
+    if(idx == 8)
+        idx == 12 - 4;
 
     if(h->buckets[idx]){
         Node *n = h->buckets[idx]->head;
@@ -107,17 +113,16 @@ void *hash_table_pop(HashTable *h, void *key)
 
             if(!h->cmp_fn(key, item->key)){
                 
-                if(prev)
-                    prev->next = next;
-                else
-                    h->buckets[idx]->head = next;
-                
-                n->next = NULL;
+                forward_list_remove(h->buckets[idx], n->value);
 
-                if(!h->buckets[idx]->head)
+                if(!h->buckets[idx]->head){
                     free(h->buckets[idx]);
-                    
-                return n;
+                    h->buckets[idx] = NULL;
+                }
+
+                h->n_elements--;
+
+                return item;
             }            
 
             prev = n;
@@ -137,21 +142,23 @@ int hash_table_num_elems(HashTable *h)
     return h->n_elements;
 }
 
+
 void hash_table_destroy(HashTable *h)
 {
+
     for (int i = 0; i < h->table_size; i++)
     {
-        if (h->buckets[i] != NULL)
+        if (h->buckets[i])
         {
             Node *n = h->buckets[i]->head;
 
-            while (n != NULL)
+            while (n)
             {
                 HashTableItem *pair = n->value;
-                free(pair->key);
                 free(pair->val);
-
+                free(pair->key);
                 _hash_pair_destroy(pair);
+
                 n = n->next;
             }
 
