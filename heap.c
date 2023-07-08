@@ -89,69 +89,60 @@ void *heap_push(Heap *heap, void *data, double priority){
 
 void heapify(HeapItem **data, int idx, HashTable *h, int size){
     int pai = heap_parent(idx), rchild = heap_right_child(idx), lchild = heap_left_child(idx);
-    HeapItem *aux;
-    void *v;
-    int *idx_ptr = malloc(sizeof(int));
-    int *idx_ptr2 = malloc(sizeof(int));
 
-    if( data[idx]->priority < data[pai]->priority ){
-        
-        // Atualiza Heap
-        aux = data[pai];
-        data[pai] = data[idx];
-        data[idx] = aux;
+    if( idx != pai && data[idx]->priority < data[pai]->priority ){
 
-        // Atualiza Hash
-        *idx_ptr = idx;
-        v = hash_table_set(h, data[idx]->data, idx_ptr);
-        if (v) free(v);
-
-        *idx_ptr2 = pai;
-        v = hash_table_set(h, data[pai]->data, idx_ptr2);
-        if(v) free(v);
+       heap_swap(data, idx, pai, h);
 
         heapify(data, idx, h, size);
         heapify(data, pai, h, size);
+        return;
 
-    } else if( lchild < size && data[idx]->priority > data[lchild]->priority ){
+    }
+    
+    if( lchild < size && data[idx]->priority > data[lchild]->priority ){
         
-        aux = data[lchild];
-        data[lchild] = data[idx];
-        data[idx] = aux;
+        if( rchild >= size || ( rchild < size && data[rchild]->priority >= data[lchild]->priority ) ){
 
-        *idx_ptr = idx;
-        v = hash_table_set(h, data[idx]->data, idx_ptr);
-        if (v) free(v);
+            heap_swap(data, idx, lchild, h);
 
-        *idx_ptr2 = lchild;
-        v = hash_table_set(h, data[lchild]->data, idx_ptr2);
-        if(v) free(v);
+            heapify(data, idx, h, size);
+            heapify(data, lchild, h, size);
+            return;
+        }
+    }
 
-        heapify(data, idx, h, size);
-        heapify(data, lchild, h, size);
-
-    } else if( rchild < size && data[idx]->priority > data[rchild]->priority ){
+    if( rchild < size && data[idx]->priority > data[rchild]->priority ){
         
-        aux = data[rchild];
-        data[rchild] = data[idx];
-        data[idx] = aux;
-
-        *idx_ptr = idx;
-        v = hash_table_set(h, data[idx]->data, idx_ptr);
-        if (v) free(v);
-
-        *idx_ptr2 = rchild;
-        v = hash_table_set(h, data[rchild]->data, idx_ptr2);
-        if(v) free(v);
+       heap_swap(data, idx, rchild, h);
 
         heapify(data, idx, h, size);
         heapify(data, rchild, h, size);
-
-    } else{
-        free(idx_ptr);
-        free(idx_ptr2);
         return;
     }
+}
+
+void heap_swap(HeapItem **data, int i, int j, HashTable *h){
+    // Troca de lugar heap[i] com heap[j] e atualiza sua hash
+
+    HeapItem *aux;
+
+    aux = data[i];
+    data[i] = data[j];
+    data[j] = aux;
+
+    int *ptr = malloc(sizeof(int)),
+        *ptr2 = malloc(sizeof(int));
+    void *v;
+
+    *ptr = i;
+    v = hash_table_set(h, data[i]->data, ptr);
+    if(v) free(v);
+    
+    *ptr2 = j;
+    v = hash_table_set(h, data[j]->data, ptr2);
+    if(v) free(v);
+
 }
 
 double heap_min_priority(Heap *heap){

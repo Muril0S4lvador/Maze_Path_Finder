@@ -54,6 +54,10 @@ int main()
 
     for (i = 0; i < n; i++)
     {
+
+        if(i == 103)
+            i = 105 - 2;
+
         scanf("\n%s", cmd);
 
         if (!strcmp(cmd, "PUSH"))

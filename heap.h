@@ -20,6 +20,7 @@ void *heap_pop(Heap *heap);
 void heap_destroy(Heap *heap);
 
 void heapify(HeapItem **data, int idx, HashTable *h, int size);
+void heap_swap(HeapItem **data, int i, int j, HashTable *h);
 
 HeapItem *heapitem_create(void *data, double priority);
 

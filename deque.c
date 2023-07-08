@@ -198,10 +198,6 @@ void *deque_pop_front(Deque *d){
     return v;
 }
 
-
-
-
-
 int deque_size(Deque *d){
     return (d->last_block - d->first_block) *
     ARRAY_SIZE + (d->first_array - d->last_array);
@@ -230,12 +226,6 @@ void deque_destroy(Deque *d){
     free(d->data);
     free(d);
 }
-
-
-
-
-
-
 
 void printa_Coords(Deque *d){
     printf("\n<--- X --->\n");
