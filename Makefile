@@ -1,5 +1,5 @@
 all: 
-	gcc -g -o main *.c
+	gcc -g -o main *.c -lm
 
 clean:
 	rm -r main

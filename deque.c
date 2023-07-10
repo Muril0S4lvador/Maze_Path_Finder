@@ -1,6 +1,4 @@
 #include "deque.h"
-#include <stdlib.h>
-#include<stdio.h>
 
 struct Deque{
     data_type **data;
@@ -97,7 +95,7 @@ void deque_push_front(Deque *d, void *val){
     }
 
     if(d->first_block < 0){
-        if(d->last_block == d->allocated_block){
+        if( d->last_block == d->allocated_block || (d->last_block == d->allocated_block - 1 && d->last_array > 0) ){
 
             deque_data_realloc(d);
             d->first_block--;
@@ -110,7 +108,8 @@ void deque_push_front(Deque *d, void *val){
 
             while(old_last >= 0){
 
-                new_data[new_last] = d->data[old_last];
+                if(d->data[old_last])
+                    new_data[new_last] = d->data[old_last];
                 old_last--;
                 new_last--;
             }
@@ -118,7 +117,7 @@ void deque_push_front(Deque *d, void *val){
             d->first_block++;
             d->first_array = ARRAY_SIZE;
 
-            free(d->data);
+            if(d->data) free(d->data);
 
             d->data = new_data;
             deque_push_front(d, val);
@@ -152,7 +151,7 @@ void deque_data_realloc(Deque *d){
     d->first_block += jump;
     d->last_block += jump;
 
-    free(d->data);
+    if(d->data) free(d->data);
 
     d->data = new_data;
 }
@@ -212,13 +211,12 @@ void *deque_get(Deque *d, int idx){
 void deque_destroy(Deque *d){
     void *v;
 
-    while(1){
+    while(deque_size(d)){
         if(d->first_block == d->last_block)
             if(d->first_array == d->last_array)
                 break;
 
         v = deque_pop_front(d);
-        free(v);
     }
 
     if(d->last_array)

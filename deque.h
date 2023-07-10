@@ -7,7 +7,10 @@ typedef struct Cel Cel;
 typedef void* data_type;
 
 #define BLOCKS_INITIAL_SIZE 5
-#define ARRAY_SIZE 5
+#define ARRAY_SIZE 10
+
+#include <stdio.h>
+#include <stdlib.h>
 
 // criacao do deque
 Deque *deque_construct(void);

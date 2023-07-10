@@ -36,7 +36,7 @@ int heap_right_child(int idx){
 }
 
 bool heap_empty(Heap *heap){
-    return (bool)heap->size;
+    return !heap->size;
 }
 
 Heap *heap_construct(HashTable *ht){
